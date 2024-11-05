@@ -1,6 +1,6 @@
 ---
 - name: Actualizar servidor Ubuntu
-  hosts: ubuntu_servers
+  hosts: 192.168.80.34
   become: yes
   tasks:
     - name: Actualizar la lista de paquetes
