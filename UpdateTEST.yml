@@ -1,19 +1,20 @@
 ---
-- name: Actualizar servidor Ubuntu
   hosts: ubuntu_servers
   become: yes
   tasks:
-    - name: Actualizar la lista de paquetes
+    - name: Actualizar lista de paquetes
       apt:
         update_cache: yes
-        cache_valid_time: 3600
+        cache_valid_time: 86400  # 1 día en segundos
 
-    - name: Actualizar todos los paquetes instalados
+    - name: Actualizar paquetes instalados
       apt:
         name: "*"
         state: latest
+        update_cache: yes
+        cache_valid_time: 86400
 
-    - name: Limpiar paquetes innecesarios
+    - name: Eliminar paquetes no utilizados
       apt:
         autoremove: yes
-        purge: yes
+        autoclean: yes
