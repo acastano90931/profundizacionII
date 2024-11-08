@@ -1,6 +1,6 @@
 ---
 - name: Actualizar servidores Ubuntu
-  hosts: ubuntu_servers
+  hosts: all
   become: yes
   tasks:
     - name: Actualizar lista de paquetes
