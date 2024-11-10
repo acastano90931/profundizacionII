@@ -1,0 +1,40 @@
+---
+- name: Instalar y configurar Zabbix Agent 6
+  hosts: all
+  become: yes
+  vars:
+    zabbix_version: "6.0"
+    zabbix_server_ip: "192.168.80.41"  # Cambia esto a la IP de tu servidor Zabbix
+
+  tasks:
+    - name: Añadir el repositorio de Zabbix
+      apt_key:
+        url: https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu/pool/main/z/zabbix-release/zabbix-release_{{ zabbix_version }}-1+ubuntu22.04_all.deb
+        state: present
+
+    - name: Actualizar la caché de APT
+      apt:
+        update_cache: yes
+
+    - name: Instalar Zabbix Agent
+      apt:
+        name: zabbix-agent
+        state: present
+
+    - name: Configurar Zabbix Agent
+      template:
+        src: templates/zabbix_agentd.conf.j2
+        dest: /etc/zabbix/zabbix_agentd.conf
+
+    - name: Iniciar y habilitar Zabbix Agent
+      systemd:
+        name: zabbix-agent
+        state: started
+        enabled: yes
+
+    - name: Abrir puerto para Zabbix Agent en el firewall
+      ufw:
+        rule: allow
+        port: 10050/tcp
+        proto: tcp
+        src: any
