@@ -1,69 +1,37 @@
 ---
 - name: Instalar y configurar Grafana
   hosts: all
-  become: true
+  become: yes
+
   tasks:
-
-    - name: Actualizar la lista de paquetes
-      apt:
-        update_cache: yes
-
-    - name: Instalar dependencias necesarias
-      apt:
-        name:
-          - software-properties-common
-          - apt-transport-https
-        state: present
-
-    - name: Añadir el repositorio oficial de Grafana
+    - name: Añadir la clave GPG de Grafana
       apt_key:
         url: https://packages.grafana.com/gpg.key
         state: present
-      register: grafana_key
 
-    - name: Añadir el repositorio de Grafana a las fuentes de apt
+    - name: Añadir el repositorio de Grafana
       apt_repository:
-        repo: "deb https://packages.grafana.com/oss/deb stable main"
+        repo: deb https://packages.grafana.com/oss/deb stable main
         state: present
+
+    - name: Actualizar la caché de APT
+      apt:
         update_cache: yes
 
     - name: Instalar Grafana
       apt:
         name: grafana
         state: present
-        update_cache: yes
 
-    - name: Asegurarse de que el servicio de Grafana esté habilitado
+    - name: Iniciar y habilitar Grafana
       systemd:
         name: grafana-server
-        enabled: yes
         state: started
-        daemon_reload: yes
-
-    - name: Configurar el puerto de Grafana (opcional)
-      lineinfile:
-        path: /etc/grafana/grafana.ini
-        regexp: '^#http_port = 3000'
-        line: 'http_port = 3000'
-        state: present
-      notify:
-        - Reiniciar Grafana
-
-    - name: Verificar que Grafana está funcionando
-      uri:
-        url: "http://localhost:3000"
-        method: GET
-        status_code: 200
-      register: result
-
-    - name: Mostrar mensaje si Grafana está disponible
-      debug:
-        msg: "Grafana está funcionando correctamente en {{ result.url }}"
-      when: result.status == 200
-
-  handlers:
-    - name: Reiniciar Grafana
-      systemd:
-        name: grafana-server
-        state: restarted
         enabled: yes
+
+    - name: Abrir puerto para Grafana en el firewall
+      ufw:
+        rule: allow
+        port: 3000/tcp
+        proto: tcp
+        src: any
