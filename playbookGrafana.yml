@@ -1,6 +1,6 @@
 ---
 - name: Instalar y configurar Grafana
-  hosts: grafana_servers
+  hosts: all
   become: true
   tasks:
 
