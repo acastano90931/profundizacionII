@@ -1,5 +1,6 @@
-- hosts: "{{ hosts }}"
-
+---
+- name: Actualizar servidores Ubuntu
+  hosts: all
   become: yes
   tasks:
 
