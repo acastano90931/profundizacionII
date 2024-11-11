@@ -17,21 +17,21 @@
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Server='
-        line: 'Server=tu-servidor-zabbix.com'
+        line: 'Server=192.168.80.41'
         create: yes
 
     - name: Configurar el servidor Zabbix activo en el archivo de configuración
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^ServerActive='
-        line: 'ServerActive=tu-servidor-zabbix.com'
+        line: 'ServerActive=192.168.80.41'
         create: yes
 
     - name: Establecer el hostname del agente Zabbix
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Hostname='
-        line: 'Hostname={{ ansible_hostname }}'
+        line: 'Hostname={{ vm-ubuntu-zabbix-manual }}'
         create: yes
 
     - name: Configurar el puerto de escucha del agente Zabbix
