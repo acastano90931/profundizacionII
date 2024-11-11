@@ -1,45 +1,46 @@
 ---
-- hosts: all
-  gather_facts: yes
+- name: Update Zabbix repo and Agent2
+  hosts: all
+  become: yes
+  become_method: sudo
   tasks:
-      - name: Download zabbix repo package
-        get_url:
-            url: "{{ https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-4+ubuntu22.04_all.deb }}"
-            dest: /tmp/zabbix.deb
+    # Get distrib version for good repo
+    - name: Distribution
+      debug: msg="{{ ansible_distribution }}"
+    - name: Distribution version
+      debug: msg="{{ ansible_distribution_version}}"
+    - name: Distribution major version
+      debug: msg="{{ ansible_distribution_major_version }}"
+    - name: Show facts available on the system
+      ansible.builtin.debug:
+        var: ansible_facts
 
-      - name: Install zabbix repo
-        become: yes
-        apt:
-            deb: /tmp/zabbix.deb
-            state: present
+    # Ubuntu 22
+    - name: Install last deb for update repo
+      ansible.builtin.apt:
+        deb: https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu24.04_all.deb
+        allow_downgrade: yes
+      when: 
+        - ansible_facts['distribution_major_version'] == "22"
 
-      - name: Install zabbix agent
-        become: yes
-        apt:
-            name: zabbix-agent
-            state: present
-            update_cache: yes
+    # Check if Zabbix is present
+    - name: Check if Zabbix is present
+      stat: 
+        path: /etc/zabbix/zabbix_agent2.conf
+      register: zabbix_config_file
 
-      - name: Stop service zabbix-agent
-        become: yes
-        service:
-            name: zabbix-agent
-            state: stopped
+    # Write message if Zabbix is presnet
+    - name: Zabbix agent is present
+      debug: 
+        msg: "Zabbix Agent is installed !"
+      when: zabbix_config_file.stat.exists
 
-      - name: Remove zabbix config file
-        become: yes
-        file:
-            path: /etc/zabbix/zabbix_agentd.conf
-            state: absent
+    # Update Repo and new zabbix agent
+    - name: Update Zabbix agent
+      ansible.builtin.apt:
+        name: zabbix-agent2
+        update_cache: yes
 
-      - name: Create new zabbix config file from template
-        become: yes
-        template:
-            src: "templates/zabbix_agentd.conf.j2"
-            dest: "/etc/zabbix/zabbix_agentd.conf"
 
-      - name: Start service zabbix-agent
-        become: yes
-        service:
-            name: zabbix-agent
-            state: started
+
+#ansible-playbook /etc/ansible/linux/pb-ubuntu-update-zabbix.yml -i /etc/ansible/hosts_ubuntu.yml -f 1 -v
