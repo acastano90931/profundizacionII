@@ -28,10 +28,3 @@
         name: grafana-server
         state: started
         enabled: yes
-
-    - name: Abrir puerto para Grafana en el firewall
-      ufw:
-        rule: allow
-        port: 3000/tcp
-        proto: tcp
-        src: any
