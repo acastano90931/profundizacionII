@@ -11,7 +11,7 @@
 
     - name: Añadir el repositorio de Grafana
       apt_repository:
-        repo: deb https://packages.grafana.com/oss/deb stable main
+        repo: deb https://apt.grafana.com stable main
         state: present
 
     - name: Actualizar la caché de APT
