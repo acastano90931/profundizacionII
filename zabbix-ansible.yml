@@ -1,0 +1,56 @@
+---
+- name: Instalar y configurar Zabbix Agent en Ubuntu
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Actualizar lista de paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar el paquete de Zabbix Agent
+      apt:
+        name: zabbix-agent
+        state: present
+
+    - name: Configurar el servidor Zabbix en el archivo de configuración
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^Server='
+        line: 'Server=tu-servidor-zabbix.com'
+        create: yes
+
+    - name: Configurar el servidor Zabbix activo en el archivo de configuración
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^ServerActive='
+        line: 'ServerActive=tu-servidor-zabbix.com'
+        create: yes
+
+    - name: Establecer el hostname del agente Zabbix
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^Hostname='
+        line: 'Hostname={{ ansible_hostname }}'
+        create: yes
+
+    - name: Configurar el puerto de escucha del agente Zabbix
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^ListenPort='
+        line: 'ListenPort=10050'
+        create: yes
+
+    - name: Configurar el archivo de log para Zabbix Agent
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^LogFile='
+        line: 'LogFile=/var/log/zabbix/zabbix_agentd.log'
+        create: yes
+
+    - name: Asegurar que el servicio de Zabbix Agent esté habilitado y en ejecución
+      service:
+        name: zabbix-agent
+        state: started
+        enabled: yes
+
