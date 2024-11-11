@@ -8,6 +8,11 @@
       apt:
         update_cache: yes
 
+    - name: Añadir el repositorio de Zabbix
+      apt_repository:
+        repo: deb https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu24.04_all.deb stable main
+        state: present
+
     - name: Instalar el paquete de Zabbix Agent
       apt:
         name: zabbix-agent
