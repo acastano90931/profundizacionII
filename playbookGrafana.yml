@@ -6,7 +6,7 @@
   tasks:
     - name: Añadir la clave GPG de Grafana
       apt_key:
-        url: https://packages.grafana.com/gpg.key
+        url: https://apt.grafana.com/gpg.key
         state: present
 
     - name: Añadir el repositorio de Grafana
