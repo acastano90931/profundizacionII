@@ -4,7 +4,7 @@
   become: yes
   vars:
     grafana_version: "9.6.3"  # Specify the Grafana version you want to install
-    grafana_repo_url: "https://packages.grafana.com/oss/deb"  # URL for the Grafana package
+    grafana_repo_url: "https://apt.grafana.com"  # URL for the Grafana package
 
   tasks:
     - name: Update apt cache and install dependencies
@@ -22,7 +22,7 @@
 
     - name: Add Grafana GPG key
       get_url:
-        url: https://packages.grafana.com/gpg.key
+        url: https://apt.grafana.com/gpg.key
         state: present
 
     - name: Install Grafana package
