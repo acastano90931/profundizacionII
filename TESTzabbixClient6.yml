@@ -1,0 +1,42 @@
+---
+- name: Instalar y configurar Zabbix Agent
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Añadir la clave GPG de Zabbix
+      apt_key:
+        url: https://repo.zabbix.com/zabbix/5.2/debian/pool/main/z/zabbix-release/zabbix-release_5.2-1+debian10_all.deb
+        state: present
+
+    - name: Añadir el repositorio de Zabbix
+      apt_repository:
+        repo: deb https://repo.zabbix.com/zabbix/5.2/debian stable main
+        state: present
+
+    - name: Actualizar la caché de APT
+      apt:
+        update_cache: yes
+
+    - name: Instalar Zabbix Agent
+      apt:
+        name: zabbix-agent
+        state: present
+
+    - name: Configurar el archivo de configuración del agente Zabbix
+      template:
+        src: templates/zabbix_agentd.conf.j2
+        dest: /etc/zabbix/zabbix_agentd.conf
+
+    - name: Iniciar y habilitar el agente Zabbix
+      systemd:
+        name: zabbix-agent
+        state: started
+        enabled: yes[_{{{CITATION{{{_1{Example setup for Zabbix environment via Ansible - GitHub](https://github.com/dj-wasabi/blog-installing-zabbix-with-ansible)
+
+    - name: Abrir puerto para Zabbix Agent en el firewall
+      ufw:
+        rule: allow
+        port: 10050/tcp
+        proto: tcp
+        src: any
