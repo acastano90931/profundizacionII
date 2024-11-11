@@ -21,7 +21,7 @@
         state: present
 
     - name: Add Grafana GPG key
-      apt_key:
+      get_url:
         url: https://packages.grafana.com/gpg.key
         state: present
 
