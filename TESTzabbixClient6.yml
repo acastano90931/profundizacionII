@@ -7,11 +7,6 @@
     zabbix_server_ip: "192.168.80.41"  # Cambia esto a la IP de tu servidor Zabbix
 
   tasks:
-    - name: Añadir la clave GPG de Zabbix
-      apt_key:
-        url: https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.0-4+ubuntu22.04_all.deb
-        state: present
-
     - name: Añadir el repositorio de Zabbix
       apt_repository:
         repo: deb https://repo.zabbix.com/zabbix/6.0/ubuntu stable main
