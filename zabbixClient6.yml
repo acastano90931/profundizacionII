@@ -3,20 +3,19 @@
   hosts: all
   become: yes
   tasks:
-  
-    - name: Añadir el repositorio de Zabbix
-      apt_key:
-        url: https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu/pool/main/z/zabbix-release/zabbix-release_{{ zabbix_version }}-1+ubuntu22.04_all.deb
+
+    - name: Actualizar lista de paquetes
+      apt:
+        update_cache: yes
+
+    - name: Instalar el paquete de Zabbix Agent
+      apt:
+        name: zabbix-agent
         state: present
 
     - name: Actualizar la caché de APT
       apt:
         update_cache: yes
-
-    - name: Instalar Zabbix Agent
-      apt:
-        name: zabbix-agent
-        state: present
 
     - name: Configurar el servidor Zabbix en el archivo de configuración
       lineinfile:
