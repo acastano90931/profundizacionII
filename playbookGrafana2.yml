@@ -1,0 +1,82 @@
+---
+- name: Install and configure Grafana
+  hosts: grafana_servers
+  become: yes
+  vars:
+    grafana_version: "9.6.3"  # Specify the Grafana version
+    grafana_repo_url: "https://packages.grafana.com/oss/deb"  # URL for Grafana package (adjust based on your OS)
+
+  tasks:
+    - name: Install dependencies for Grafana
+      apt:
+        name:
+          - software-properties-common
+          - apt-transport-https
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+    
+    - name: Add Grafana APT repository (Debian-based systems)
+      apt_repository:
+        repo: "deb {{ grafana_repo_url }} stable main"
+        state: present
+      when: ansible_os_family == "Debian"
+    
+    - name: Install Grafana package (Debian-based systems)
+      apt:
+        name: grafana={{ grafana_version }}
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Add Grafana YUM repository (RedHat-based systems)
+      yum_repository:
+        name: grafana
+        description: Grafana OSS Repository
+        baseurl: https://packages.grafana.com/oss/rpm
+        enabled: 1
+        gpgcheck: 1
+        gpgkey: https://packages.grafana.com/gpg.key
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Grafana package (RedHat-based systems)
+      yum:
+        name: grafana-{{ grafana_version }}
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure Grafana service is started and enabled
+      service:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Open Grafana port (default: 3000)
+      firewalld:
+        service: grafana
+        permanent: yes
+        state: enabled
+        immediate: yes
+        zone: public
+
+    - name: Ensure Grafana service is running (RedHat)
+      systemd:
+        name: grafana-server
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Configure Grafana data sources (optional)
+      template:
+        src: grafana_datasource.yml.j2
+        dest: /etc/grafana/provisioning/datasources/datasource.yml
+        owner: root
+        group: root
+        mode: '0644'
+      notify:
+        - Restart Grafana
+
+  handlers:
+    - name: Restart Grafana
+      service:
+        name: grafana-server
+        state: restarted
