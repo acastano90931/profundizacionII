@@ -1,0 +1,45 @@
+---
+- name: Instalar Semaphore
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Actualizar la caché de APT
+      apt:
+        update_cache: yes
+
+    - name: Instalar dependencias
+      apt:
+        name:
+          - git
+          - curl
+          - wget
+          - software-properties-common
+        state: present
+
+    - name: Añadir el repositorio de Semaphore
+      apt_repository:
+        repo: 'deb https://semaphoreci.com/debian_semaphoreci stable main'
+        state: present
+
+    - name: Actualizar la caché de APT nuevamente
+      apt:
+        update_cache: yes
+
+    - name: Instalar Semaphore
+      apt:
+        name: semaphore
+        state: present
+
+    - name: Iniciar y habilitar Semaphore
+      systemd:
+        name: semaphore
+        state: started
+        enabled: yes
+
+    - name: Abrir puerto para Semaphore en el firewall
+      ufw:
+        rule: allow
+        port: 8080/tcp
+        proto: tcp
+        src: any
